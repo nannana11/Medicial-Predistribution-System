@@ -1,0 +1,20 @@
+# 编译输出目录 (Maven)
+target/
+*.class
+
+# 日志文件
+logs/
+*.log
+
+# IntelliJ IDEA 配置文件（保留必要，排除个人配置）
+.idea/
+*.iml
+*.iws
+
+# 操作系统临时文件
+.DS_Store
+Thumbs.db
+
+# 压缩包（如你的 triage-server.zip，不需要传，代码已经解压了）
+*.zip
+*.tar.gz

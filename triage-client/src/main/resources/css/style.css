@@ -1,0 +1,127 @@
+.root-pane {
+    -fx-background-color: #f3f7fa;
+    -fx-font-family: "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+}
+
+.header {
+    -fx-background-color: linear-gradient(to right, #1677a6, #2495b7);
+}
+
+.title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: #e9f8fc;
+}
+
+.content-scroll,
+.content-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.content {
+    -fx-alignment: top-left;
+}
+
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-border-color: #dce8ee;
+    -fx-border-radius: 12px;
+    -fx-padding: 22px;
+    -fx-effect: dropshadow(gaussian, rgba(25, 71, 91, 0.10), 14, 0, 0, 4);
+}
+
+.result-card {
+    -fx-border-color: #9ccfdd;
+}
+
+.section-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #17465b;
+}
+
+.helper-text,
+.status-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #627984;
+}
+
+.text-area {
+    -fx-font-size: 17px;
+    -fx-background-color: #f9fcfd;
+    -fx-border-color: #a9c4cf;
+    -fx-border-radius: 7px;
+    -fx-background-radius: 7px;
+}
+
+.text-area:focused {
+    -fx-border-color: #1986ad;
+    -fx-border-width: 2px;
+}
+
+.button {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 10px 24px;
+    -fx-background-radius: 7px;
+}
+
+.primary-button {
+    -fx-background-color: #1687ad;
+    -fx-text-fill: white;
+}
+
+.primary-button:hover {
+    -fx-background-color: #0f7294;
+}
+
+.secondary-button {
+    -fx-background-color: #e7f0f4;
+    -fx-text-fill: #315767;
+}
+
+.field-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #395965;
+}
+
+.field-value {
+    -fx-font-size: 16px;
+    -fx-text-fill: #172f38;
+}
+
+.reply-text {
+    -fx-font-size: 17px;
+    -fx-line-spacing: 5px;
+    -fx-text-fill: #18323c;
+    -fx-background-color: #eef8fa;
+    -fx-background-radius: 8px;
+    -fx-padding: 16px;
+}
+
+.emergency {
+    -fx-text-fill: #c62828;
+    -fx-font-weight: bold;
+}
+
+.normal {
+    -fx-text-fill: #267342;
+}
+
+.safety-notice {
+    -fx-font-size: 14px;
+    -fx-text-fill: #765927;
+    -fx-background-color: #fff8e7;
+    -fx-background-radius: 8px;
+    -fx-border-color: #ead49a;
+    -fx-border-radius: 8px;
+    -fx-padding: 14px;
+}

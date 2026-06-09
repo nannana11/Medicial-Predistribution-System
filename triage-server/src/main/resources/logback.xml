@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logback 日志配置文件。
+  日志级别: TRACE < DEBUG < INFO < WARN < ERROR
+  生产环境建议使用 INFO 级别，开发调试可使用 DEBUG 级别。
+-->
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <!-- 日志文件存放目录 -->
+    <property name="LOG_HOME" value="./logs"/>
+    <!-- 日志归档保留天数 -->
+    <property name="MAX_HISTORY" value="30"/>
+
+    <!-- ======== 控制台输出 ======== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+            </pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ======== 文件输出 - 所有日志 ======== -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/triage-system.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天滚动 -->
+            <fileNamePattern>${LOG_HOME}/triage-system.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+            </pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ======== 专门记录分诊请求和结果的日志 ======== -->
+    <appender name="TRIAGE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/triage-records.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/triage-records.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} | %msg%n
+            </pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ======== 日志级别设置 ======== -->
+
+    <!-- 根日志级别 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <!-- Netty 框架日志（减少框架内部的调试信息） -->
+    <logger name="io.netty" level="WARN"/>
+
+    <!-- 自定义日志：分诊服务 - INFO 级别记录每次请求和结果 -->
+    <logger name="com.triage.service.TriageService" level="INFO" additivity="true"/>
+
+    <!-- 自定义日志：分诊记录的专用文件输出 -->
+    <!-- 使用 triage-records 作为 logger name，单独记录每次分诊请求和结果 -->
+    <logger name="TRIAGE_RECORDS" level="INFO" additivity="false">
+        <appender-ref ref="TRIAGE_FILE"/>
+    </logger>
+
+</configuration>

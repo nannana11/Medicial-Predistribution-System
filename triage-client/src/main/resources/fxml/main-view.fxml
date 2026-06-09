@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.triageclient.controller.MainViewController"
+            styleClass="root-pane">
+    <top>
+        <VBox alignment="CENTER" fillWidth="true" spacing="6" styleClass="header">
+            <padding>
+                <Insets top="22" right="24" bottom="22" left="24"/>
+            </padding>
+            <Label maxWidth="Infinity" text="医院智能预分诊辅助系统"
+                   textAlignment="CENTER" wrapText="true" styleClass="title"/>
+            <Label maxWidth="Infinity" text="请描述您的不适，系统将提供就诊科室参考"
+                   textAlignment="CENTER" wrapText="true" styleClass="subtitle"/>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    fitToHeight="true"
+                    hbarPolicy="NEVER"
+                    styleClass="content-scroll">
+            <content>
+                <VBox fillWidth="true"
+                      minWidth="0"
+                      maxWidth="Infinity"
+                      spacing="18"
+                      styleClass="content">
+                    <padding>
+                        <Insets top="24" right="34" bottom="28" left="34"/>
+                    </padding>
+
+                    <VBox minWidth="0" maxWidth="Infinity" spacing="10"
+                          styleClass="card" VBox.vgrow="ALWAYS">
+                        <Label maxWidth="Infinity" text="请输入您的症状描述"
+                               wrapText="true" styleClass="section-title"/>
+                        <Label maxWidth="Infinity"
+                               text="例如：我最近咳嗽、发烧、胸闷，已经持续三天。"
+                               wrapText="true" styleClass="helper-text"/>
+                        <TextArea fx:id="symptomInput"
+                                  minHeight="150"
+                                  maxWidth="Infinity"
+                                  maxHeight="Infinity"
+                                  promptText="请在这里输入症状……"
+                                  prefRowCount="6"
+                                  wrapText="true"
+                                  VBox.vgrow="ALWAYS"/>
+                        <HBox minWidth="0" alignment="CENTER_RIGHT" spacing="12">
+                            <ProgressIndicator fx:id="progressIndicator" prefWidth="28" prefHeight="28"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="clearButton" text="重新填写"
+                                    onAction="#handleClear" styleClass="secondary-button"/>
+                            <Button fx:id="submitButton" text="提交咨询"
+                                    onAction="#handleSubmit" defaultButton="true" styleClass="primary-button"/>
+                        </HBox>
+                        <Label fx:id="statusLabel" maxWidth="Infinity"
+                               wrapText="true" styleClass="status-text"/>
+                    </VBox>
+
+                    <VBox fx:id="resultPanel" minWidth="0" maxWidth="Infinity"
+                          spacing="12" styleClass="card,result-card">
+                        <Label maxWidth="Infinity" text="系统建议"
+                               wrapText="true" styleClass="section-title"/>
+                        <Separator/>
+                        <GridPane minWidth="0" hgap="10" vgap="12">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="90" prefWidth="100"/>
+                                <ColumnConstraints minWidth="0" hgrow="ALWAYS"/>
+                            </columnConstraints>
+                            <Label text="推荐科室：" styleClass="field-name"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                            <Label fx:id="departmentLabel" maxWidth="Infinity"
+                                   wrapText="true" styleClass="field-value"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                            <Label text="紧急程度：" styleClass="field-name"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                            <Label fx:id="urgencyLabel" maxWidth="Infinity"
+                                   wrapText="true" styleClass="field-value"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                            <Label text="是否急诊：" styleClass="field-name"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                            <Label fx:id="emergencyLabel" maxWidth="Infinity"
+                                   wrapText="true" styleClass="field-value"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        </GridPane>
+                        <Label fx:id="replyLabel" minWidth="0" maxWidth="Infinity"
+                               wrapText="true" styleClass="reply-text"/>
+                    </VBox>
+
+                    <Label text="温馨提示：本结果仅用于门诊预分诊参考，不能替代医生诊断。如症状严重或快速加重，请立即联系现场医护人员或前往急诊。"
+                           minWidth="0" maxWidth="Infinity"
+                           wrapText="true" styleClass="safety-notice"/>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
