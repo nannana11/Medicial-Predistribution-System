@@ -77,7 +77,7 @@ public class Config {
      * @return API Key（可能为空）
      */
     public String getDeepSeekApiKey() {
-        String environmentValue = System.getenv("DEEPSEEK_API_KEY");
+        String environmentValue = System.getenv("API_KEY");
         if (environmentValue == null || environmentValue.isBlank()) {
             environmentValue = System.getenv("API_KEY");
         }

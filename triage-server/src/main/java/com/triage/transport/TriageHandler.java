@@ -59,16 +59,15 @@ public class TriageHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        // 获取分机地址信息
         String clientIp = getClientIp(ctx);
         String rawMessage = msg instanceof String ? (String) msg : msg.toString();
 
-        logger.info("收到来自分机 [{}] 的消息: {}", clientIp, rawMessage);
+        logger.info("✦ 收到来自分机 [{}] 的消息: {}", clientIp, rawMessage);
 
         // 调用业务层进行分诊处理
         String response = triageService.processTriage(rawMessage);
 
-        logger.info("向分机 [{}] 发送响应: {}", clientIp, response);
+        logger.info("✦ 已向分机 [{}] 返回分诊结果", clientIp);
 
         // 将响应写回客户端，并添加换行符作为消息结束标记
         ByteBuf responseBuf = Unpooled.copiedBuffer(response + "\n", CharsetUtil.UTF_8);
@@ -94,7 +93,9 @@ public class TriageHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         String clientIp = getClientIp(ctx);
-        logger.info("分机连接建立: {}", clientIp);
+        logger.info("╔═══════════════════════════════════════════╗");
+        logger.info("║  ✦ 分机连接建立: {}        ", clientIp);
+        logger.info("╚═══════════════════════════════════════════╝");
     }
 
     /**
@@ -103,7 +104,9 @@ public class TriageHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         String clientIp = getClientIp(ctx);
-        logger.info("分机连接断开: {}", clientIp);
+        logger.info("╔═══════════════════════════════════════════╗");
+        logger.info("║  ✦ 分机连接断开: {}      ", clientIp);
+        logger.info("╚═══════════════════════════════════════════╝");
     }
 
     /**

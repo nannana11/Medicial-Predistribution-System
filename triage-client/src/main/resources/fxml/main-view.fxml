@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -20,11 +21,11 @@
             fx:controller="com.example.triageclient.controller.MainViewController"
             styleClass="root-pane">
     <top>
-        <VBox alignment="CENTER" fillWidth="true" spacing="6" styleClass="header">
+        <VBox alignment="CENTER" fillWidth="true" spacing="4" styleClass="header">
             <padding>
-                <Insets top="22" right="24" bottom="22" left="24"/>
+                <Insets top="18" right="24" bottom="16" left="24"/>
             </padding>
-            <Label maxWidth="Infinity" text="医院智能预分诊辅助系统"
+            <Label maxWidth="Infinity" text="医学问答助手"
                    textAlignment="CENTER" wrapText="true" styleClass="title"/>
             <Label maxWidth="Infinity" text="请描述您的不适，系统将提供就诊科室参考"
                    textAlignment="CENTER" wrapText="true" styleClass="subtitle"/>
@@ -47,20 +48,35 @@
                     </padding>
 
                     <VBox minWidth="0" maxWidth="Infinity" spacing="10"
-                          styleClass="card" VBox.vgrow="ALWAYS">
-                        <Label maxWidth="Infinity" text="请输入您的症状描述"
-                               wrapText="true" styleClass="section-title"/>
+                          VBox.vgrow="ALWAYS">
+                        <styleClass>
+                            <String fx:value="card"/>
+                            <String fx:value="user-message-card"/>
+                        </styleClass>
+                        <Label maxWidth="Infinity" text="请输入症状描述"
+                               wrapText="true" styleClass="speaker-label"/>
                         <Label maxWidth="Infinity"
-                               text="例如：我最近咳嗽、发烧、胸闷，已经持续三天。"
+                               text="您可以直接打字输入；不方便打字时，也可以使用下方语音辅助录入。"
                                wrapText="true" styleClass="helper-text"/>
                         <TextArea fx:id="symptomInput"
                                   minHeight="150"
                                   maxWidth="Infinity"
                                   maxHeight="Infinity"
-                                  promptText="请在这里输入症状……"
+                                  promptText="请在这里打字描述症状，例如：我最近咳嗽、发烧、胸闷，已经持续三天。"
                                   prefRowCount="6"
                                   wrapText="true"
                                   VBox.vgrow="ALWAYS"/>
+                        <HBox minWidth="0" maxWidth="Infinity" alignment="CENTER_LEFT"
+                              spacing="14" styleClass="voice-panel">
+                            <Label text="语" alignment="CENTER" styleClass="voice-icon"/>
+                            <VBox minWidth="0" spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="可选：语音辅助输入" styleClass="voice-title"/>
+                                <Label fx:id="speechStatusLabel" maxWidth="Infinity"
+                                       wrapText="true" styleClass="voice-status-text"/>
+                            </VBox>
+                            <Button fx:id="voiceButton" text="语音输入"
+                                    onAction="#handleToggleSpeech" styleClass="voice-button"/>
+                        </HBox>
                         <HBox minWidth="0" alignment="CENTER_RIGHT" spacing="12">
                             <ProgressIndicator fx:id="progressIndicator" prefWidth="28" prefHeight="28"/>
                             <Region HBox.hgrow="ALWAYS"/>
@@ -74,8 +90,13 @@
                     </VBox>
 
                     <VBox fx:id="resultPanel" minWidth="0" maxWidth="Infinity"
-                          spacing="12" styleClass="card,result-card">
-                        <Label maxWidth="Infinity" text="系统建议"
+                          spacing="12">
+                        <styleClass>
+                            <String fx:value="card"/>
+                            <String fx:value="result-card"/>
+                            <String fx:value="ai-message-card"/>
+                        </styleClass>
+                        <Label maxWidth="Infinity" text="AI医师"
                                wrapText="true" styleClass="section-title"/>
                         <Separator/>
                         <GridPane minWidth="0" hgap="10" vgap="12">

@@ -15,6 +15,19 @@ logs/
 .DS_Store
 Thumbs.db
 
-# 压缩包（如你的 triage-server.zip，不需要传，代码已经解压了）
+# 压缩包（release 安装包请上传到 GitHub Releases，不要放进普通 Git 提交）
 *.zip
 *.tar.gz
+*.tar.bz2
+*.dmg
+*.pkg
+*.msi
+*.exe
+
+# 客户端打包产物
+release/macos/MedicalTriageClient.app/
+
+# 本地语音识别大模型文件（单文件超过 GitHub 普通仓库限制）
+triage-client/models/*
+!triage-client/models/README.md
+triage-client/libs/sherpa-onnx-streaming-zipformer-zh-xlarge-int8-2025-06-30.tar.bz2

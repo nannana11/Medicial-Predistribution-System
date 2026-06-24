@@ -1,6 +1,7 @@
 package com.example.triageclient.controller;
 
 import com.example.triageclient.dto.TriageResponse;
+import com.example.triageclient.service.SpeechRecognitionService;
 import com.example.triageclient.service.TriageApiException;
 import com.example.triageclient.service.TriageApiService;
 import com.example.triageclient.util.AlertUtil;
@@ -18,6 +19,8 @@ public class MainViewController {
     @FXML
     private TextArea symptomInput;
     @FXML
+    private Button voiceButton;
+    @FXML
     private Button submitButton;
     @FXML
     private Button clearButton;
@@ -25,6 +28,8 @@ public class MainViewController {
     private ProgressIndicator progressIndicator;
     @FXML
     private Label statusLabel;
+    @FXML
+    private Label speechStatusLabel;
     @FXML
     private VBox resultPanel;
     @FXML
@@ -37,6 +42,8 @@ public class MainViewController {
     private Label replyLabel;
 
     private final TriageApiService apiService = new TriageApiService();
+    private final SpeechRecognitionService speechRecognitionService = new SpeechRecognitionService();
+    private boolean loading;
 
     @FXML
     private void initialize() {
@@ -44,10 +51,12 @@ public class MainViewController {
         resultPanel.setManaged(false);
         progressIndicator.setVisible(false);
         statusLabel.setText("请尽量完整描述症状、持续时间和严重程度。");
+        speechStatusLabel.setText("语音只是辅助方式；您也可以始终在上方文本框中手动打字。");
     }
 
     @FXML
     private void handleSubmit() {
+        stopSpeechRecognition();
         String message = symptomInput.getText() == null ? "" : symptomInput.getText().trim();
         if (message.isEmpty()) {
             AlertUtil.showWarning("请输入您的症状描述后再提交。");
@@ -74,11 +83,38 @@ public class MainViewController {
 
     @FXML
     private void handleClear() {
+        stopSpeechRecognition();
         symptomInput.clear();
         resultPanel.setVisible(false);
         resultPanel.setManaged(false);
         statusLabel.setText("请尽量完整描述症状、持续时间和严重程度。");
+        speechStatusLabel.setText("语音只是辅助方式；您也可以始终在上方文本框中手动打字。");
         symptomInput.requestFocus();
+    }
+
+    @FXML
+    private void handleToggleSpeech() {
+        if (loading) {
+            return;
+        }
+        if (speechRecognitionService.isListening()) {
+            stopSpeechRecognition();
+            return;
+        }
+
+        voiceButton.setText("停止录音");
+        if (!voiceButton.getStyleClass().contains("recording")) {
+            voiceButton.getStyleClass().add("recording");
+        }
+        submitButton.setDisable(true);
+        speechRecognitionService.start(
+                symptomInput.getText(),
+                text -> Platform.runLater(() -> {
+                    symptomInput.setText(text);
+                    symptomInput.positionCaret(symptomInput.getText().length());
+                }),
+                message -> Platform.runLater(() -> speechStatusLabel.setText(message)),
+                throwable -> Platform.runLater(() -> showSpeechError(throwable)));
     }
 
     private void showResult(TriageResponse response) {
@@ -102,6 +138,15 @@ public class MainViewController {
         AlertUtil.showError(message);
     }
 
+    private void showSpeechError(Throwable throwable) {
+        resetSpeechButton();
+        String message = throwable.getMessage() == null || throwable.getMessage().isBlank()
+                ? "当前无法启动语音识别，请检查麦克风权限和模型文件。"
+                : throwable.getMessage();
+        speechStatusLabel.setText("语音识别启动失败。");
+        AlertUtil.showError(message);
+    }
+
     private Throwable findApiException(Throwable throwable) {
         Throwable current = throwable;
         Throwable deepest = throwable;
@@ -116,12 +161,28 @@ public class MainViewController {
     }
 
     private void setLoading(boolean loading) {
+        this.loading = loading;
         submitButton.setDisable(loading);
         clearButton.setDisable(loading);
         symptomInput.setDisable(loading);
+        voiceButton.setDisable(loading);
         progressIndicator.setVisible(loading);
         statusLabel.setText(loading ? "正在生成预分诊建议，请稍候……"
                 : "请尽量完整描述症状、持续时间和严重程度。");
+    }
+
+    private void stopSpeechRecognition() {
+        if (speechRecognitionService.isListening()) {
+            speechRecognitionService.stop();
+        }
+        resetSpeechButton();
+    }
+
+    private void resetSpeechButton() {
+        voiceButton.setText("语音输入");
+        voiceButton.getStyleClass().remove("recording");
+        submitButton.setDisable(loading);
+        voiceButton.setDisable(loading);
     }
 
     private String displayValue(String value, String fallback) {

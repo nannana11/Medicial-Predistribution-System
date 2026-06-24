@@ -47,8 +47,11 @@ public class HttpTriageServer {
         server.createContext("/api/health", this::handleHealth);
         server.start();
 
-        logger.info("HTTP 服务端启动成功: http://localhost:{}", port);
-        logger.info("分诊接口: POST http://localhost:{}/api/triage/message", port);
+        logger.info("==========================================");
+        logger.info("  HTTP 服务端启动成功，等待分机连接...");
+        logger.info("  地址: http://0.0.0.0:{}", port);
+        logger.info("  分诊接口: POST http://0.0.0.0:{}/api/triage/message", port);
+        logger.info("==========================================");
         shutdownLatch.await();
     }
 
@@ -65,6 +68,9 @@ public class HttpTriageServer {
     }
 
     private void handleHealth(HttpExchange exchange) throws IOException {
+        String clientIp = getClientIp(exchange);
+        logger.info("✦ 分机连接建立 [{}] → GET /api/health", clientIp);
+
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendJson(exchange, 405, errorResponse("请求方法不支持"));
             return;
@@ -75,6 +81,8 @@ public class HttpTriageServer {
     }
 
     private void handleTriage(HttpExchange exchange) throws IOException {
+        String clientIp = getClientIp(exchange);
+
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendJson(exchange, 405, errorResponse("请使用 POST 方法提交症状"));
             return;
@@ -98,7 +106,9 @@ public class HttpTriageServer {
                 return;
             }
 
+            logger.info("✦ 分机 [{}] 提交症状: {}", clientIp, message);
             String aiResult = triageService.analyzeSymptoms(message);
+            logger.info("✦ 已向分机 [{}] 返回分诊结果", clientIp);
             sendJson(exchange, 200, toClientResponse(aiResult));
         } catch (JsonProcessingException exception) {
             logger.warn("客户端 JSON 格式错误", exception);
@@ -193,5 +203,16 @@ public class HttpTriageServer {
         } finally {
             exchange.close();
         }
+    }
+
+    /**
+     * 获取客户端 IP 地址。
+     */
+    private String getClientIp(HttpExchange exchange) {
+        InetSocketAddress addr = exchange.getRemoteAddress();
+        if (addr != null) {
+            return addr.getAddress().getHostAddress() + ":" + addr.getPort();
+        }
+        return "unknown";
     }
 }

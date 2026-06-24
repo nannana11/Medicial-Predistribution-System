@@ -1,23 +1,82 @@
 # 医疗预分诊系统
 
-一个面向医院门诊大厅、自助服务机和咨询台场景的医疗预分诊课程项目。
+面向医院门诊大厅、自助服务机和咨询台场景的医疗预分诊课程项目。患者在 JavaFX 客户端输入或语音录入症状，客户端通过 HTTP/JSON 请求分诊服务器，服务器返回推荐科室、紧急程度、是否建议急诊和就诊提示。
 
-患者可以在 JavaFX 客户端描述症状，客户端通过 HTTP/JSON 将内容发送到服务器。服务器根据本地安全规则或大模型结果，返回推荐科室、紧急程度和就诊提示。
+> 本项目仅用于课程学习、原型展示和门诊预分诊流程演示。它不是医疗器械，不提供疾病诊断或用药建议，不能替代医生判断。症状严重或快速加重时，应立即联系现场医护人员或前往急诊。
 
-> 本系统仅用于课程学习和门诊预分诊演示，不进行疾病诊断，不提供具体用药建议，也不能替代医生判断。
+## 功能概览
 
-## 项目状态
+- JavaFX 中文客户端界面
+- 本地离线中文语音识别输入，基于 sherpa-onnx
+- 症状输入校验、1000 字符限制和异步请求
+- HTTP/JSON 客户端与服务器通信
+- 推荐科室、紧急程度、急诊提示和回复展示
+- 服务器健康检查接口
+- Mock 规则模式和 DeepSeek 模式
+- macOS arm64 与 Windows x64 客户端 release
+- release 通过 `server-url.txt` 修改服务器地址，无需重新打包
 
-目前已完成第一阶段 MVP：
+## 项目结构
 
-- JavaFX 客户端症状输入与结果展示
-- 客户端和服务器 HTTP/JSON 通信
-- 推荐科室、紧急程度和急诊提示
-- 高危症状优先识别
-- 无法识别时提示用户补充信息
-- 输入校验、连接失败和请求超时提示
-- Mock 规则模式与 DeepSeek 模式切换
-- 单元测试和 HTTP 集成测试
+```text
+Medicial-Predistribution-System/
+├── README.md
+├── PredistibutionSystem_OverallPlanning.md
+├── pom.xml
+├── release/
+│   ├── README.md
+│   ├── RELEASE_NOTES.md
+│   └── macos/
+│       ├── server-url.txt
+│       └── start-with-server-url.command
+├── triage-client/
+│   ├── libs/
+│   ├── models/                    # 仓库内仅保留说明，完整模型在 release 包中
+│   ├── src/
+│   └── pom.xml
+└── triage-server/
+    ├── src/
+    └── pom.xml
+```
+
+## Release 使用
+
+最终客户端 release 请在 GitHub Releases 的 `v1.0.0` 附件中下载。本地打包产物位于 `release/`，但大型 zip 和 `.app` 不提交到普通源码分支。
+
+- macOS Apple Silicon: `release/macos/MedicalTriageClient-1.0.0-macos-arm64.zip`
+- Windows x64: `release/windows/MedicalTriageClient-1.0.0-windows-x64.zip`
+
+使用 release 前，需要先启动 `triage-server`。客户端通过同目录的 `server-url.txt` 指定服务器地址，例如：
+
+```text
+http://192.168.1.100:8080
+```
+
+macOS 用户解压后双击：
+
+```text
+start-with-server-url.command
+```
+
+Windows 用户解压后双击：
+
+```text
+start-with-server-url.bat
+```
+
+不要直接双击 `.app` 或 `.exe`，否则不会读取 `server-url.txt` 中的地址。更完整的 release 说明见 [release/README.md](release/README.md)。
+
+## 技术栈
+
+| 模块 | 技术 |
+| --- | --- |
+| 客户端 | Java 21、JavaFX 21、FXML、CSS |
+| 语音识别 | sherpa-onnx、本地离线中文模型 |
+| 服务端 | Java 17+、JDK HttpServer、Jackson |
+| AI | Mock 规则、DeepSeek API |
+| 日志 | SLF4J、Logback |
+| 构建 | Maven 多模块项目 |
+| 测试 | JUnit 5、HTTP 集成测试 |
 
 ## 系统架构
 
@@ -26,105 +85,44 @@ flowchart LR
     A["患者"] --> B["JavaFX 客户端"]
     B -->|"HTTP / JSON"| C["分诊服务器"]
     C --> D{"分诊模式"}
-    D --> E["Mock 安全规则"]
+    D --> E["Mock 规则"]
     D --> F["DeepSeek API"]
     E --> C
     F --> C
-    C -->|"结构化结果"| B
+    C -->|"结构化分诊结果"| B
 ```
-
-## 技术栈
-
-| 模块 | 技术 |
-| --- | --- |
-| 客户端 | Java 21、JavaFX 21、FXML、CSS |
-| 服务器 | Java 17、JDK HttpServer、Jackson |
-| AI | Mock 规则、DeepSeek API（可选） |
-| 日志 | SLF4J、Logback |
-| 构建 | Maven 多模块项目 |
-| 测试 | JUnit 5、HTTP 集成测试 |
-
-## 项目结构
-
-```text
-PredistibutionSystem/
-├── triage-client/                 # JavaFX 客户端
-│   ├── src/main/java/
-│   ├── src/main/resources/
-│   ├── src/test/java/
-│   └── pom.xml
-├── triage-server/                 # HTTP 分诊服务器
-│   ├── src/main/java/
-│   ├── src/main/resources/
-│   ├── src/test/java/
-│   └── pom.xml
-├── PredistibutionSystem_OverallPlanning.md
-├── pom.xml                        # Maven 聚合配置
-└── README.md
-```
-
-## 第一阶段功能
-
-### 客户端
-
-- 自适应 JavaFX 中文界面
-- 症状输入和 1000 字符长度限制
-- 异步发送请求，避免界面卡顿
-- 展示推荐科室、紧急程度和急诊提示
-- 处理空输入、网络断开、超时和服务器异常
-- 可通过配置文件修改服务器地址
-
-### 服务器
-
-- `POST /api/triage/message` 分诊接口
-- `GET /api/health` 健康检查接口
-- 请求内容和长度校验
-- Mock 与 DeepSeek 两种分诊模式
-- 统一 JSON 响应和基础异常处理
-- 日志记录和自动化测试
-
-### Mock 安全规则
-
-默认模式不需要联网或 API Key，可用于第一阶段演示。
-
-- 严重失血、呼吸困难、意识不清等高危表现优先转急诊科
-- 普通咳嗽、发热等症状推荐呼吸内科
-- 腹痛、腹泻等症状推荐消化内科
-- 皮疹、瘙痒等症状推荐皮肤科
-- 无法识别具体症状时不随意推荐科室，而是提示补充信息
-- 院内高危提示要求呼叫现场医护人员并启动院内急救流程
-
-这些规则只用于课程演示，不构成真实医疗建议。
 
 ## 环境要求
 
+源码运行需要：
+
 - JDK 21 或更高版本
 - Maven 3.9 或更高版本
-- IntelliJ IDEA（推荐）
+- IntelliJ IDEA 推荐
 
-服务器源码兼容 Java 17，客户端使用 Java 21。
+服务器源码兼容 Java 17+。客户端使用 JavaFX 21，推荐 JDK 21+。
 
-## 快速开始
+## 源码运行
 
-### 1. 克隆项目
-
-```bash
-git clone <your-repository-url>
-cd PredistibutionSystem
-```
-
-### 2. 构建和测试
+### 1. 构建和测试
 
 ```bash
 mvn clean test
 ```
 
-### 3. 启动服务器
+### 2. 启动服务器
 
 在 IntelliJ IDEA 中运行：
 
 ```text
 triage-server/src/main/java/com/triage/MainApplication.java
+```
+
+或命令行运行：
+
+```bash
+mvn -pl triage-server package
+java -jar triage-server/target/triage-server-1.0.0.jar
 ```
 
 服务器默认监听：
@@ -133,37 +131,24 @@ triage-server/src/main/java/com/triage/MainApplication.java
 http://localhost:8080
 ```
 
-启动成功后，控制台会显示：
-
-```text
-HTTP 服务端启动成功
-分诊接口: POST http://localhost:8080/api/triage/message
-```
-
-也可以通过命令行打包并启动：
+健康检查：
 
 ```bash
-mvn -pl triage-server package
-java -jar triage-server/target/triage-server-1.0.0.jar
+curl http://localhost:8080/api/health
 ```
 
-### 4. 配置客户端
+### 3. 启动客户端源码
 
-编辑：
-
-```text
-triage-client/src/main/resources/application.properties
-```
-
-服务器和客户端在同一台电脑时：
+先确认 `triage-client/src/main/resources/application.properties` 中的服务器地址：
 
 ```properties
 server.base-url=http://localhost:8080
 server.connect-timeout-seconds=5
 server.request-timeout-seconds=30
+speech.model-dir=models/sherpa-onnx-streaming-zipformer-zh-xlarge-int8-2025-06-30
 ```
 
-局域网联调时，将 `localhost` 替换为服务器电脑的 WLAN IPv4 地址：
+局域网联调时，将 `localhost` 改为服务器电脑的 IPv4 地址：
 
 ```properties
 server.base-url=http://192.168.1.100:8080
@@ -171,22 +156,11 @@ server.base-url=http://192.168.1.100:8080
 
 也可以通过环境变量临时覆盖：
 
-```text
-TRIAGE_SERVER_BASE_URL=http://192.168.1.100:8080
+```bash
+export TRIAGE_SERVER_BASE_URL=http://192.168.1.100:8080
 ```
 
-### 5. 启动客户端
-
-推荐在 IntelliJ IDEA 的 Maven 面板中运行：
-
-```text
-医疗预分诊系统客户端
-  -> 插件
-  -> javafx
-  -> javafx:run
-```
-
-命令行启动：
+启动客户端：
 
 ```bash
 mvn -pl triage-client javafx:run
@@ -194,29 +168,28 @@ mvn -pl triage-client javafx:run
 
 ## 局域网联调
 
-服务器和客户端位于不同电脑时：
+服务器和客户端在不同电脑时：
 
 1. 两台电脑连接同一个局域网。
-2. 服务器电脑运行 `MainApplication`。
+2. 在服务器电脑启动 `triage-server`。
 3. 服务器电脑允许 Java 或 TCP 端口 `8080` 通过防火墙。
-4. 客户端将 `server.base-url` 设置为服务器电脑的 IPv4 地址。
-5. 客户端电脑检查端口：
+4. 客户端的 `server-url.txt` 或 `application.properties` 填写服务器电脑 IPv4 地址。
+5. 客户端电脑检查健康接口。
+
+macOS / Linux:
+
+```bash
+curl http://192.168.1.100:8080/api/health
+```
+
+Windows PowerShell:
 
 ```powershell
 Test-NetConnection 192.168.1.100 -Port 8080
-```
-
-看到以下内容表示端口可达：
-
-```text
-TcpTestSucceeded : True
-```
-
-然后检查健康接口：
-
-```powershell
 Invoke-RestMethod http://192.168.1.100:8080/api/health
 ```
+
+如果健康接口返回 `{"status":"UP"}`，说明网络和服务器基本可用。
 
 ## API
 
@@ -246,7 +219,7 @@ Content-Type: application/json
 
 ```json
 {
-  "message": "我最近一直咳嗽"
+  "message": "我最近一直咳嗽、发烧"
 }
 ```
 
@@ -255,34 +228,22 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "recommendedDepartment": "呼吸内科",
-  "urgencyLevel": "medium",
-  "needEmergency": false,
-  "reply": "建议优先咨询呼吸内科。请补充症状持续时间、最高体温，以及是否伴有呼吸困难或胸痛。"
-}
-```
-
-高危结果示例：
-
-```json
-{
-  "success": true,
-  "recommendedDepartment": "急诊科",
+  "recommendedDepartment": "发热门诊",
   "urgencyLevel": "high",
   "needEmergency": true,
-  "reply": "请勿自行走动，立即呼叫现场医护人员，由工作人员启动院内急救流程并转送急诊科。"
+  "reply": "建议立即前往发热门诊就诊，并做好个人防护，避免与他人密切接触。"
 }
 ```
 
-## 使用 DeepSeek
+## DeepSeek 配置
 
-默认配置使用 Mock 模式：
+服务器支持 Mock 和 DeepSeek 两种模式。当前配置文件中使用 DeepSeek 模式；如果没有 API Key，或只需要离线演示，可以改为 Mock 模式：
 
 ```properties
 triage.ai.mock=true
 ```
 
-切换到 DeepSeek：
+如需使用 DeepSeek：
 
 1. 修改 `triage-server/src/main/resources/application.properties`：
 
@@ -292,13 +253,27 @@ triage.ai.mock=false
 
 2. 设置环境变量：
 
-```text
-DEEPSEEK_API_KEY=your-api-key
+```bash
+export DEEPSEEK_API_KEY=your-api-key
 ```
 
 3. 重新启动服务器。
 
 不要将 API Key 写入源码、配置文件或提交到 GitHub。
+
+## 语音识别说明
+
+客户端使用 sherpa-onnx 本地离线中文模型。语音不会上传到服务器，识别文字只会填入症状输入框，不会自动提交。
+
+源码运行语音识别时需要本地模型。由于模型文件过大，源码仓库只保留 `triage-client/models/README.md` 说明；完整模型已包含在客户端 release 包中。
+
+模型目录：
+
+```text
+triage-client/models/sherpa-onnx-streaming-zipformer-zh-xlarge-int8-2025-06-30
+```
+
+macOS 第一次使用语音输入时，需要允许应用访问麦克风。
 
 ## 测试
 
@@ -308,39 +283,24 @@ DEEPSEEK_API_KEY=your-api-key
 mvn clean test
 ```
 
-测试内容包括：
+测试覆盖内容包括：
 
-- 客户端响应 JSON 解析
-- 普通咳嗽分诊
-- 严重失血高危识别
-- 胸痛伴冷汗高危识别
-- 消化系统症状分诊
-- 无关输入的补充信息提示
-- 服务器健康检查
-- 真实 HTTP 请求和结构化响应
-
-## 后续计划
-
-- 更严格的结构化分诊结果校验
-- 多轮追问与会话管理
-- 医院科室信息配置
-- 更完整的高危症状规则
-- 数据库和匿名日志
-- 管理后台
-- JavaFX 客户端安装包
-- 语音输入、打印和院内地图导航
+- 客户端 JSON 响应解析
+- 输入校验
+- Mock 分诊规则
+- 高危症状识别
+- HTTP 健康检查
+- HTTP 分诊接口集成测试
 
 ## 安全说明
 
 - 本项目不是医疗器械或诊断系统。
 - 不应根据本系统结果自行用药或延误就医。
 - 高危情况必须由现场医护人员进一步判断和处理。
-- 真实部署前需要经过医院、医学专家和信息安全人员评估。
-- 不应在日志或仓库中保存患者姓名、身份证号、手机号等敏感信息。
 - 当前服务器没有用户认证和 HTTPS，不应直接暴露到公网。
+- 不要在日志或仓库中保存患者姓名、身份证号、手机号等敏感信息。
+- 真实部署前需要经过医院、医学专家和信息安全人员评估。
 
 ## 课程文档
 
-详细开发规划参见：
-
-[PredistibutionSystem_OverallPlanning.md](PredistibutionSystem_OverallPlanning.md)
+详细开发规划见 [PredistibutionSystem_OverallPlanning.md](PredistibutionSystem_OverallPlanning.md)。

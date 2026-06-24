@@ -34,6 +34,13 @@
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.k2fsa</groupId>
+            <artifactId>sherpa-onnx-macos-aarch64</artifactId>
+            <version>1.13.2</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/sherpa-onnx-macos-aarch64.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
@@ -60,7 +67,7 @@
                 <configuration>
                     <mainClass>com.example.triageclient/com.example.triageclient.Launcher</mainClass>
                     <options>
-                        <option>--enable-native-access=javafx.graphics</option>
+                        <option>--enable-native-access=javafx.graphics,sherpa.onnx</option>
                     </options>
                 </configuration>
             </plugin>
